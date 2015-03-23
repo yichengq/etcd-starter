@@ -32,7 +32,6 @@ import (
 	"github.com/coreos/etcd-starter/Godeps/_workspace/src/github.com/coreos/etcd/migrate"
 	"github.com/coreos/etcd-starter/Godeps/_workspace/src/github.com/coreos/etcd/pkg/flags"
 	"github.com/coreos/etcd-starter/Godeps/_workspace/src/github.com/coreos/etcd/pkg/osutil"
-	etcdversion "github.com/coreos/etcd-starter/Godeps/_workspace/src/github.com/coreos/etcd/version"
 	"github.com/coreos/etcd-starter/Godeps/_workspace/src/github.com/coreos/etcd/wal"
 	"github.com/coreos/etcd-starter/Godeps/_workspace/src/golang.org/x/net/context"
 )
@@ -50,6 +49,20 @@ const (
 	v2_0Proxy version = "v2.0 proxy"
 	empty     version = "empty"
 	unknown   version = "unknown"
+
+	usageline = `usage: etcd-starter [flags]
+	start v0.4 or v2.0 etcd server based on the layout of data directory and the content inside wal and snapshot
+
+	etcd-starter --version
+	show the version of etcd
+
+	etcd-starter -h | --help
+	show the help information about etcd
+
+	etcd-starter [etcd flags]
+	start v0.4 or v2.0 etcd using the given flags
+
+Please check etcd documents for more information about etcd flag usage.`
 )
 
 var (
@@ -67,7 +80,7 @@ func StartDesiredVersion(binDir string, args []string) {
 		return
 	}
 	if fs.Lookup("version").Value.String() == "true" {
-		fmt.Println("etcd version", etcdversion.Version)
+		fmt.Println("etcd-starter version", versionStr)
 		os.Exit(0)
 	}
 
@@ -347,6 +360,7 @@ type boolFlag interface {
 // environment variables.
 func parseConfig(args []string) (*flag.FlagSet, error) {
 	fs := flag.NewFlagSet("full flagset", flag.ContinueOnError)
+	fs.Usage = func() { fmt.Println(usageline) }
 	etcdmain.NewConfig().VisitAll(func(f *flag.Flag) {
 		_, isBoolFlag := f.Value.(boolFlag)
 		fs.Var(&value{isBoolFlag: isBoolFlag}, f.Name, "")
