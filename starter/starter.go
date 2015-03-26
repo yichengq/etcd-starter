@@ -122,7 +122,8 @@ func checkInternalVersion(fs *flag.FlagSet) version {
 	case wal.WALv0_4:
 		standbyInfo, err := migrate.DecodeStandbyInfo4FromFile(standbyInfo4(dataDir))
 		if err != nil && !os.IsNotExist(err) {
-			log.Fatalf("etcd-starter: failed to decode standbyInfo in %v: %v", dataDir, err)
+			log.Printf("etcd-starter: failed to decode standbyInfo in %v: %v", dataDir, err)
+			return internalV1
 		}
 		inStandbyMode := standbyInfo != nil && standbyInfo.Running
 		if inStandbyMode {
@@ -140,7 +141,8 @@ func checkInternalVersion(fs *flag.FlagSet) version {
 		}
 		ver, err := checkInternalVersionByDataDir4(dataDir)
 		if err != nil {
-			log.Fatalf("etcd-starter: failed to check start version in %v: %v", dataDir, err)
+			log.Printf("etcd-starter: failed to check start version in %v: %v", dataDir, err)
+			return internalV1
 		}
 		return ver
 	case wal.WALNotExist:
